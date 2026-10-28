@@ -147,7 +147,10 @@ class HiveNumber(HiveEntity, RestoreNumber):
         if (last_state := await self.async_get_last_state()) and (
             last_number_data := await self.async_get_last_number_data()
         ):
-            if last_state.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN):
+            if (
+                last_state.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN)
+                and last_number_data.native_value is not None
+            ):
                 self._state = last_number_data.native_value
             else:
                 self._state = self.entity_description.default_value

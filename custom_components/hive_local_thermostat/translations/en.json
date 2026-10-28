@@ -188,6 +188,9 @@
         },
         "wrong_model": {
             "message": "This device does not support this action."
+        },
+        "no_target_temperature": {
+            "message": "No target temperature is known yet. Set a target temperature first."
         }
     }
 }
