@@ -16,6 +16,7 @@ from homeassistant.const import (
     __version__ as HA_VERSION,  # noqa: N812
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
@@ -81,6 +82,10 @@ async def async_setup(
 async def async_setup_entry(hass: HomeAssistant, entry: HiveConfigEntry) -> bool:
     """Set up this integration using UI."""
 
+    if not await mqtt.async_wait_for_mqtt_client(hass):
+        msg = "The MQTT integration is not available"
+        raise ConfigEntryNotReady(msg)
+
     coordinator = HiveCoordinator(
         hass,
         entry,
@@ -112,11 +117,25 @@ async def async_setup_entry(hass: HomeAssistant, entry: HiveConfigEntry) -> bool
         )
     )
 
-    # Send an initial message to get the current state
-    await sleep(2)
-    payload = r'{"system_mode":""}'
-    LOGGER.debug("Sending to %s/get message %s", coordinator.topic, payload)
-    await mqtt.async_publish(hass, coordinator.topic_get, payload)
+    # Ask the receiver for its current state. Done in the background (after
+    # giving the subscription a moment to be established) so setup isn't blocked,
+    # and a broker hiccup here doesn't fail the whole entry.
+    async def _async_request_state() -> None:
+        await sleep(2)
+        payload = r'{"system_mode":""}'
+        LOGGER.debug("Sending to %s message %s", coordinator.topic_get, payload)
+        try:
+            await mqtt.async_publish(hass, coordinator.topic_get, payload)
+        except HomeAssistantError as err:
+            LOGGER.warning(
+                "Could not request initial state from %s: %s",
+                coordinator.topic_get,
+                err,
+            )
+
+    entry.async_create_background_task(
+        hass, _async_request_state(), name=f"{DOMAIN} request initial state"
+    )
 
     entry.async_on_unload(entry.add_update_listener(config_entry_update_listener))
 

@@ -18,6 +18,9 @@ from homeassistant.helpers import config_validation as cv
 from .common import HiveData
 from .const import (
     DOMAIN,
+    MAX_TEMPERATURE,
+    MAXIMUM_BOOST_MINUTES,
+    MIN_TEMPERATURE,
     MODEL_SLR2,
 )
 
@@ -32,6 +35,11 @@ SERVICE_DATA_WATER_BOOST_MINUTES = "minutes_to_boost"
 
 ATTR_CONFIG_ENTRY_ID = "config_entry_id"
 
+# The receiver only supports boosts up to MAXIMUM_BOOST_MINUTES
+_BOOST_MINUTES = probatio.All(
+    cv.positive_int, probatio.Range(max=MAXIMUM_BOOST_MINUTES)
+)
+
 SERVICE_BASE_SCHEMA = probatio.Schema(
     {
         probatio.Required(ATTR_CONFIG_ENTRY_ID): str,
@@ -40,14 +48,16 @@ SERVICE_BASE_SCHEMA = probatio.Schema(
 
 SERVICE_HEATING_BOOST_SCHEMA = SERVICE_BASE_SCHEMA.extend(
     {
-        probatio.Optional(SERVICE_DATA_HEATING_BOOST_MINUTES): cv.positive_int,
-        probatio.Optional(SERVICE_DATA_HEATING_BOOST_TEMPERATURE): cv.positive_float,
+        probatio.Optional(SERVICE_DATA_HEATING_BOOST_MINUTES): _BOOST_MINUTES,
+        probatio.Optional(SERVICE_DATA_HEATING_BOOST_TEMPERATURE): probatio.All(
+            cv.positive_float, probatio.Range(min=MIN_TEMPERATURE, max=MAX_TEMPERATURE)
+        ),
     }
 )
 
 SERVICE_WATER_BOOST_SCHEMA = SERVICE_BASE_SCHEMA.extend(
     {
-        probatio.Optional(SERVICE_DATA_WATER_BOOST_MINUTES): cv.positive_int,
+        probatio.Optional(SERVICE_DATA_WATER_BOOST_MINUTES): _BOOST_MINUTES,
     }
 )
 
@@ -58,6 +68,13 @@ _LOGGER = logging.getLogger(__name__)
 def async_get_entry(hass: HomeAssistant, config_entry_id: str) -> ConfigEntry:
     """Get the Hive Local Thermostat config entry."""
     if not (entry := hass.config_entries.async_get_entry(config_entry_id)):
+        raise ServiceValidationError(
+            translation_domain=DOMAIN,
+            translation_key="integration_not_found",
+            translation_placeholders={"target": DOMAIN},
+        )
+    if entry.domain != DOMAIN:
+        # A valid entry id, but for some other integration
         raise ServiceValidationError(
             translation_domain=DOMAIN,
             translation_key="integration_not_found",

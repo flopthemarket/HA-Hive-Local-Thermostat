@@ -20,6 +20,7 @@ from homeassistant.const import (
     UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .common import HiveConfigEntry
@@ -27,6 +28,8 @@ from .const import (
     DOMAIN,
     HIVE_BOOST,
     LOGGER,
+    MAX_TEMPERATURE,
+    MIN_TEMPERATURE,
 )
 from .coordinator import HiveCoordinator
 from .entity import HiveEntity, HiveEntityDescription
@@ -104,13 +107,22 @@ class HiveClimateEntity(HiveEntity, ClimateEntity):
             | ClimateEntityFeature.PRESET_MODE
         )
 
-        self._attr_max_temp = 32
-        self._attr_min_temp = 5
+        self._attr_max_temp = MAX_TEMPERATURE
+        self._attr_min_temp = MIN_TEMPERATURE
         self._attr_target_temperature_step = 0.5
 
         self._hvac_mode_set_from_temperature = False
 
         super().__init__(entity_description, coordinator)
+
+    def _require_target_temperature(self) -> float:
+        """Return the target temperature or tell the user why we can't act yet."""
+        if self._attr_target_temperature is None:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="no_target_temperature",
+            )
+        return self._attr_target_temperature
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         """Set the preset mode."""
@@ -171,9 +183,9 @@ class HiveClimateEntity(HiveEntity, ClimateEntity):
             await self.coordinator.async_set_hvac_mode_auto()
         if hvac_mode == HVACMode.HEAT:
             if self._hvac_mode_set_from_temperature:
-                assert self._attr_target_temperature is not None
                 await self.coordinator.async_set_hvac_mode_heat(
-                    self._attr_target_temperature, self._hvac_mode_set_from_temperature
+                    self._require_target_temperature(),
+                    self._hvac_mode_set_from_temperature,
                 )
 
                 self._hvac_mode_set_from_temperature = False
@@ -191,9 +203,9 @@ class HiveClimateEntity(HiveEntity, ClimateEntity):
                     self._attr_target_temperature = (
                         floor((self._attr_current_temperature) * 2) / 2
                     )
-                assert self._attr_target_temperature is not None
                 await self.coordinator.async_set_hvac_mode_heat(
-                    self._attr_target_temperature, self._hvac_mode_set_from_temperature
+                    self._require_target_temperature(),
+                    self._hvac_mode_set_from_temperature,
                 )
 
         if hvac_mode == HVACMode.OFF:
@@ -206,8 +218,9 @@ class HiveClimateEntity(HiveEntity, ClimateEntity):
 
     async def async_turn_on(self) -> None:
         """Set the HVAC State to on."""
-        assert self._attr_target_temperature is not None
-        await self.coordinator.async_set_hvac_mode_heat(self._attr_target_temperature)
+        await self.coordinator.async_set_hvac_mode_heat(
+            self._require_target_temperature()
+        )
 
     async def async_turn_off(self) -> None:
         """Set the HVAC State to off."""

@@ -24,7 +24,8 @@ MODELS = [
     MODEL_SLR2,
 ]
 
-HIVE_BOOST = "emergency_heat"
+# Value reported/accepted by the receiver (via Zigbee2MQTT) for a native boost
+HIVE_BOOST = "emergency_heating"
 
 DEFAULT_FROST_TEMPERATURE = 12
 DEFAULT_HEATING_BOOST_MINUTES = 120
@@ -32,3 +33,6 @@ DEFAULT_HEATING_BOOST_TEMPERATURE = 25
 DEFAULT_WATER_BOOST_MINUTES = 60
 
 MAXIMUM_BOOST_MINUTES = 180
+
+MIN_TEMPERATURE = 5
+MAX_TEMPERATURE = 32

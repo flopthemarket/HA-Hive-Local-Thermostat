@@ -12,6 +12,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from .common import HiveConfigEntry
 from .const import (
     DOMAIN,
+    LOGGER,
     MODEL_OTR1,
     MODEL_SLR1,
 )
@@ -94,8 +95,10 @@ class HiveSelect(HiveEntity, SelectEntity, RestoreEntity):
         new_value = self.coordinator.water_mode
 
         if new_value not in self.options:
-            msg = f"Invalid option for {self.entity_id}: {new_value}"
-            raise ValueError(msg)
+            # e.g. the receiver reported a mode we don't expose; don't raise inside
+            # the coordinator callback, just show it as unknown.
+            LOGGER.debug("Unexpected water mode %r for %s", new_value, self.entity_id)
+            new_value = None
 
         self._attr_current_option = new_value
         self.async_write_ha_state()
@@ -115,7 +118,7 @@ class HiveSelect(HiveEntity, SelectEntity, RestoreEntity):
         await super().async_added_to_hass()
 
         last_state = await self.async_get_last_state()
-        if last_state:
+        if last_state and last_state.state in self.options:
             self._attr_current_option = last_state.state
 
     async def async_select_option(self, option: str) -> None:
