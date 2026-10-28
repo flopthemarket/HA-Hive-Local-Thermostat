@@ -10,7 +10,7 @@ from asyncio import sleep
 
 from awesomeversion.awesomeversion import AwesomeVersion
 
-from homeassistant.components.mqtt import client as mqtt_client
+from homeassistant.components import mqtt
 from homeassistant.const import (
     Platform,
     __version__ as HA_VERSION,  # noqa: N812
@@ -83,7 +83,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: HiveConfigEntry) -> bool
 
     coordinator = HiveCoordinator(
         hass,
-        entry.entry_id,
+        entry,
         entry.options[CONF_MODEL],
         entry.options[CONF_MQTT_TOPIC],
         entry.options.get(CONF_SHOW_HEAT_SCHEDULE_MODE, True),
@@ -107,7 +107,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: HiveConfigEntry) -> bool
 
     # Subscribe to MQTT and have the coordinator handle messages
     entry.async_on_unload(
-        await mqtt_client.async_subscribe(
+        await mqtt.async_subscribe(
             hass, coordinator.topic, coordinator.handle_mqtt_message, 1
         )
     )
@@ -116,7 +116,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: HiveConfigEntry) -> bool
     await sleep(2)
     payload = r'{"system_mode":""}'
     LOGGER.debug("Sending to %s/get message %s", coordinator.topic, payload)
-    await mqtt_client.async_publish(hass, coordinator.topic_get, payload)
+    await mqtt.async_publish(hass, coordinator.topic_get, payload)
 
     entry.async_on_unload(entry.add_update_listener(config_entry_update_listener))
 

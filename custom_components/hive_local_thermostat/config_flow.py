@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any, cast
 
-import voluptuous as vol
+import probatio
 
 from homeassistant.const import CONF_NAME
 from homeassistant.core import callback
@@ -22,35 +22,35 @@ from . import const
 
 def required(
     key: str, options: dict[str, Any], default: Any | None = None
-) -> vol.Required:
-    """Return vol.Required."""
+) -> probatio.Required:
+    """Return probatio.Required."""
     if isinstance(options, dict) and key in options:
         suggested_value = options[key]
     elif default is not None:
         suggested_value = default
     else:
-        return vol.Required(key)
-    return vol.Required(key, description={"suggested_value": suggested_value})
+        return probatio.Required(key)
+    return probatio.Required(key, description={"suggested_value": suggested_value})
 
 
 def optional(
     key: str, options: dict[str, Any], default: Any | None = None
-) -> vol.Optional:
-    """Return vol.Optional."""
+) -> probatio.Optional:
+    """Return probatio.Optional."""
     if isinstance(options, dict) and key in options:
         suggested_value = options[key]
     elif default is not None:
         suggested_value = default
     else:
-        return vol.Optional(key)
-    return vol.Optional(key, description={"suggested_value": suggested_value})
+        return probatio.Optional(key)
+    return probatio.Optional(key, description={"suggested_value": suggested_value})
 
 
 async def general_options_schema(
     handler: SchemaConfigFlowHandler | SchemaOptionsFlowHandler,
-) -> vol.Schema:
+) -> probatio.Schema:
     """Generate options schema."""
-    return vol.Schema(
+    return probatio.Schema(
         {
             required(const.CONF_MQTT_TOPIC, handler.options): selector.TextSelector(),
             required(const.CONF_MODEL, handler.options): selector.SelectSelector(
@@ -76,9 +76,9 @@ async def general_options_schema(
 
 async def general_config_schema(
     handler: SchemaConfigFlowHandler | SchemaOptionsFlowHandler,
-) -> vol.Schema:
+) -> probatio.Schema:
     """Generate config schema."""
-    return vol.Schema(
+    return probatio.Schema(
         {
             required(CONF_NAME, handler.options): selector.TextSelector(),
             required(const.CONF_MQTT_TOPIC, handler.options): selector.TextSelector(),

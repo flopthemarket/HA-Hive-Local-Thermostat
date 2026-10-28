@@ -4,7 +4,7 @@ from logging import Logger, getLogger
 
 LOGGER: Logger = getLogger(__package__)
 
-MIN_HA_VERSION = "2025.4"
+MIN_HA_VERSION = "2026.10"
 
 DOMAIN = "hive_local_thermostat"
 CONFIG_VERSION = 1

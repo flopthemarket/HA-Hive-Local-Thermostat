@@ -12,6 +12,8 @@ If anyone would like to take over maintaining this integration please reach out 
 
 ## Instructions
 
+**Requires Home Assistant 2026.10.0 or newer** (tested against 2026.10.4).
+
 To use this integration your Hive thermostat receiver must be added to [Zigbee2MQTT](https://www.zigbee2mqtt.io/supported-devices/#v=Hive) and an MQTT broker and the MQTT integration within Home Assistant must be correctly configured. It is important to follow the pairing steps within the Zigbee2MQTT documentation, the thermostat remote control must be paired directly to the thermostat receiver.
 
 Zigbee2MQTT will expose the native sensors but Hive requires specific message structures to be sent for setting modes and a combination of sensor values to determine the modes, this integration creates controls and sensors that correctly interface with the native Hive values/methods.

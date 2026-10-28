@@ -144,7 +144,6 @@ class HiveClimateEntity(HiveEntity, ClimateEntity):
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set the target temperature."""
-        """Set the target temperature."""
         if temperature := kwargs.get(ATTR_TEMPERATURE):
             self._attr_target_temperature = temperature
 

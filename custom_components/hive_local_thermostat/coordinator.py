@@ -7,14 +7,15 @@ from asyncio import sleep
 from datetime import datetime
 from typing import Any, cast
 
+from homeassistant.components import mqtt
 from homeassistant.components.climate.const import (
     PRESET_BOOST,
     PRESET_NONE,
     HVACAction,
     HVACMode,
 )
-from homeassistant.components.mqtt import client as mqtt_client
 from homeassistant.components.mqtt.models import ReceiveMessage
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util.dt import utcnow
@@ -75,7 +76,7 @@ class HiveCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def __init__(
         self,
         hass: HomeAssistant,
-        entry_id: str,
+        config_entry: ConfigEntry,
         model: str,
         topic: str,
         show_heat_schedule_mode: bool,  # noqa: FBT001
@@ -85,9 +86,10 @@ class HiveCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         super().__init__(
             hass,
             LOGGER,
-            name=f"{DOMAIN}_{entry_id}",
+            config_entry=config_entry,
+            name=f"{DOMAIN}_{config_entry.entry_id}",
         )
-        self.entry_id = entry_id
+        self.entry_id = config_entry.entry_id
         self.model = model
         self.topic = topic
         self.show_heating_schedule_mode = show_heat_schedule_mode
@@ -405,7 +407,7 @@ class HiveCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     async def _async_publish_set(self, payload: str) -> None:
         """Publish MQTT set message."""
         LOGGER.debug("Sending to %s message %s", self.topic_set, payload)
-        await mqtt_client.async_publish(self.hass, self.topic_set, payload)
+        await mqtt.async_publish(self.hass, self.topic_set, payload)
 
     async def async_water_boost(
         self, boost_duration_minutes: int | None = None

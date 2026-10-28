@@ -3,7 +3,7 @@
 import logging
 from typing import cast
 
-import voluptuous as vol
+import probatio
 
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.core import (
@@ -32,22 +32,22 @@ SERVICE_DATA_WATER_BOOST_MINUTES = "minutes_to_boost"
 
 ATTR_CONFIG_ENTRY_ID = "config_entry_id"
 
-SERVICE_BASE_SCHEMA = vol.Schema(
+SERVICE_BASE_SCHEMA = probatio.Schema(
     {
-        vol.Required(ATTR_CONFIG_ENTRY_ID): str,
+        probatio.Required(ATTR_CONFIG_ENTRY_ID): str,
     }
 )
 
 SERVICE_HEATING_BOOST_SCHEMA = SERVICE_BASE_SCHEMA.extend(
     {
-        vol.Optional(SERVICE_DATA_HEATING_BOOST_MINUTES): cv.positive_int,
-        vol.Optional(SERVICE_DATA_HEATING_BOOST_TEMPERATURE): cv.positive_float,
+        probatio.Optional(SERVICE_DATA_HEATING_BOOST_MINUTES): cv.positive_int,
+        probatio.Optional(SERVICE_DATA_HEATING_BOOST_TEMPERATURE): cv.positive_float,
     }
 )
 
 SERVICE_WATER_BOOST_SCHEMA = SERVICE_BASE_SCHEMA.extend(
     {
-        vol.Optional(SERVICE_DATA_WATER_BOOST_MINUTES): cv.positive_int,
+        probatio.Optional(SERVICE_DATA_WATER_BOOST_MINUTES): cv.positive_int,
     }
 )
 
