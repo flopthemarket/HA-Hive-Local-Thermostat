@@ -1,14 +1,18 @@
-# Hive Local Thermostat (RETIRED)
+# Hive Local Thermostat
 
 Local Hive Thermostat MQTT integration for Home Assistant
 
-## ⚠️ This integration is retired and there will be no further updates
+## ℹ️ About this fork
 
-Due to moving to a new heating system I no longer have a Hive thermostat and am unable to maintain this integration.
+This is a community-maintained fork of [andrew-codechimp/HA-Hive-Local-Thermostat](https://github.com/andrew-codechimp/HA-Hive-Local-Thermostat). The original author retired the project after moving to a different heating system, and all credit for the integration itself goes to them.
 
-I am leaving the issues open so that the community can hopefully provide support, I will not be able to make any changes and test them.
+**Please read before you install:**
 
-If anyone would like to take over maintaining this integration please reach out and I will put a link to your forked repo here.
+- 🤖 **This fork is maintained with the help of AI.** Updates, fixes and tests are written with an AI assistant.
+- 🛠️ **It is a hobby project.** I maintain it in my spare time, so there are no guarantees about response times, new features, or how long it will be kept up to date.
+- 🧪 **It has automated tests, but it is not tested on every device.** The test suite runs against Home Assistant 2026.10, but that does not replace trying it on real Hive receivers. Expect that some things may not behave perfectly on your model.
+- ⚠️ **Use it at your own risk.** This controls your heating, so please keep your Hive thermostat's own frost protection and schedules set up as a safety net, and don't rely on this integration alone for anything critical.
+- 🐛 **Issues and pull requests are welcome.** If something doesn't work, please open an issue and include your receiver model, your Home Assistant version and any relevant log lines (the integration's diagnostics download is very helpful).
 
 ## Instructions
 
@@ -34,7 +38,7 @@ Actions are provided to natively boost the Heating `hive_local_thermostat.boost_
 
 There are also matching actions to cancel the native boost for Heating `hive_local_thermostat.cancel_boost_heating` and Water `hive_local_thermostat.cancel_boost_water` (SLR2 only), these actions will return the heating/water back to the state they were before the boost.
 
-![Hive Screenshot](https://raw.githubusercontent.com/andrew-codechimp/HA-Hive-Local-Thermostat/main/images/screenshot.png "Hive Controls")
+![Hive Screenshot](https://raw.githubusercontent.com/flopthemarket/HA-Hive-Local-Thermostat/main/images/screenshot.png "Hive Controls")
 
 This project is not endorsed by, directly affiliated with, maintained, authorized, or sponsored by Hive.
 
@@ -42,7 +46,7 @@ This project is not endorsed by, directly affiliated with, maintained, authorize
 
 ### HACS
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=andrew-codechimp&repository=HA-Hive-Local-Thermostat&category=Integration)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=flopthemarket&repository=HA-Hive-Local-Thermostat&category=Integration)
 
 Restart Home Assistant
 
